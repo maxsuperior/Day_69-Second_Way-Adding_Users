@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
+import os
 
 # Gravatar allows us to change the image that we use across the blog websites that use Gravatar on there site.
 from flask_gravatar import Gravatar
@@ -21,7 +22,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
+app.config['SECRET_KEY'] = os.environ.get("APP_CONFIG_SECRET_KEY")
 ckeditor = CKEditor(app)
 Bootstrap(app)
 
@@ -141,8 +142,8 @@ def register():
 
         has_and_salted_password = generate_password_hash(
             form.password.data,
-            method='pbkdf2:sha256',
-            salt_length=8
+            method=os.environ.get('HASH_METH'),
+            salt_length=int(os.environ.get('SALT_LENGTH'))
         )
 
         new_user = Users(
